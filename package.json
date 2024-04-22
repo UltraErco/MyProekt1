@@ -1,0 +1,15 @@
+{
+  "name": "mynodeserver",
+  "version": "1.0.0",
+  "description": "Basic Node.js server example",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "author": "Nikita Zhukov",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
+
