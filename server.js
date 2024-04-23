@@ -1,25 +1,14 @@
-const express = require('express');
-const app = express();
+const http = require('http');
 
-app.get('/static', (req, res) => {
-    res.send("<h1><strong>Hello</strong></h1><p>Octagon NodeJS Test</p>");
+const hostname = 'localhost';
+const port = 3000;
+
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.end('<h1>Привет, Октагон!</h1>');
 });
 
-app.get('/dynamic', (req, res) => {
-    const a = parseFloat(req.query.a);
-    const b = parseFloat(req.query.b);
-    const c = parseFloat(req.query.c);
-
-    if (isNaN(a) || isNaN(b) || isNaN(c)) {
-        res.send("<h1>Error</h1>");
-    } else {
-        const result = (a * b * c) / 3;
-        res.send(`<h1><strong>Calculated</strong></h1><p>${result}</p>`);
-    }
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
 });
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
-
-
