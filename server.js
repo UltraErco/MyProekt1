@@ -1,65 +1,31 @@
 const express = require('express');
-const mysql = require('mysql2');
-const bodyParser = require('body-parser');
-
 const app = express();
-const port = 3000;
 
-// Подключение к вашей базе данных MySQL
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  database: 'chatbottests',
-  password: ''
+app.get('/static', (req, res) => {
+    res.send("<h1><strong>Hello</strong></h1><p>Octagon NodeJS Test</p>");
 });
 
-connection.connect((err) => {
-  if (err) {
-    console.error('Ошибка подключения к БД: ' + err.message);
-    return;
-  }
-  console.log('Подключение к серверу MySQL успешно установлено');
-});
+app.get('/dynamic', (req, res) => {
+    const variables = ['a', 'b', 'c'];
+    let isValid = true;
 
-// Middleware для разбора тела запроса в формате JSON
-app.use(bodyParser.json());
-
-// Путь для обновления объекта в базе данных
-app.post('/updateItem', (req, res) => {
-  const { id, name, desc } = req.body;
-
-  // Проверка наличия всех необходимых параметров
-  if (!id || !name || !desc) {
-    res.send(null); // Если неправильные входные параметры, возвращаем null
-    return;
-  }
-
-  // Обновление объекта в базе данных
-  connection.query('UPDATE items SET name = ?, description = ? WHERE id = ?', [name, desc, id], (error, results) => {
-    if (error) {
-      console.error('Ошибка при обновлении объекта: ' + error.message);
-      res.send(null); // Если произошла ошибка при обновлении, возвращаем null
-      return;
-    }
-
-    // Проверяем количество обновленных строк
-    if (results.affectedRows === 0) {
-      res.json({}); // Если объект не найден, возвращаем пустой объект
-    } else {
-      // Получаем обновленный объект из базы данных
-      connection.query('SELECT * FROM items WHERE id = ?', [id], (error, updatedItem) => {
-        if (error) {
-          console.error('Ошибка при получении обновленного объекта: ' + error.message);
-          res.send(null); // Если произошла ошибка при получении, возвращаем null
-          return;
+    for (let variable of variables) {
+        if (!(variable in req.query && !isNaN(parseFloat(req.query[variable])))) {
+            isValid = false;
+            break;
         }
-        res.json(updatedItem[0]); // Возвращаем обновленный объект
-      });
     }
-  });
+
+    if (!isValid) {
+        res.send("<h1>Error</h1>");
+    } else {
+        const result = (parseFloat(req.query.a) * parseFloat(req.query.b) * parseFloat(req.query.c)) / 3;
+        res.send(`<h1><strong>Calculated</strong></h1><p>${result}</p>`);
+    }
 });
 
-// Запуск сервера
-app.listen(port, () => {
-  console.log('Сервер запущен на порту ' + port);
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
 });
+
+
