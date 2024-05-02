@@ -7,21 +7,15 @@ app.get('/static', (req, res) => {
 
 app.get('/dynamic', (req, res) => {
     const variables = ['a', 'b', 'c'];
-    let isValid = true;
 
     for (let variable of variables) {
-        if (!(variable in req.query && !isNaN(parseFloat(req.query[variable])))) {
-            isValid = false;
-            break;
+        if (req.query[variable] == null || isNaN(parseFloat(req.query[variable]))) {
+            return res.send("<h1>Error</h1>");
         }
     }
 
-    if (!isValid) {
-        res.send("<h1>Error</h1>");
-    } else {
-        const result = (parseFloat(req.query.a) * parseFloat(req.query.b) * parseFloat(req.query.c)) / 3;
-        res.send(`<h1><strong>Calculated</strong></h1><p>${result}</p>`);
-    }
+    const result = (parseFloat(req.query.a) * parseFloat(req.query.b) * parseFloat(req.query.c)) / 3;
+    res.send(`<h1><strong>Calculated</strong></h1><p>${result}</p>`);
 });
 
 app.listen(3000, () => {
