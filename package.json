@@ -10,13 +10,10 @@
   "license": "MIT",
   "devDependencies": {
     "nodemon": "^2.0.7"
-<<<<<<< HEAD
-=======
   },
   "dependencies": {
     "express": "^4.19.2",
-    "mysql2": "^3.9.7"
->>>>>>> 07ccae2786adeb30ac11c90afe636c737068bb09
+    "mysql2": "^3.9.7",
+    "node-telegram-bot-api": "^0.65.1"
   }
 }
-
