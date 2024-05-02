@@ -10,7 +10,8 @@ app.get('/dynamic', (req, res) => {
 
     for (let variable of variables) {
         if (req.query[variable] == null || isNaN(parseFloat(req.query[variable]))) {
-            return res.send("<h1>Error</h1>");
+            res.send("<h1>Error</h1>");
+            return;
         }
     }
 
