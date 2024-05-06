@@ -22,69 +22,23 @@ connection.connect((err) => {
 
 app.use(bodyParser.json());
 
-app.post('/updateItem', (req, res) => {
-  const { id, name, desc } = req.body;
-  if (!id || !name || !desc) {
-    res.send(null);
-    return;
-  }
-  connection.query('UPDATE items SET name = ?, description = ? WHERE id = ?', [name, desc, id], (error, results) => {
+app.get('/randomItem', (req, res) => {
+  connection.query('SELECT * FROM items ORDER BY RAND() LIMIT 1', (error, results) => {
     if (error) {
-      console.error('Ошибка при обновлении объекта: ' + error.message);
-      res.send(null);
+      console.error('Ошибка при получении случайного элемента: ' + error.message);
+      res.status(500).send('Internal Server Error');
       return;
     }
-    if (results.affectedRows === 0) {
-      res.json({});
+    if (results.length === 0) {
+      res.send('База данных пуста');
     } else {
-      connection.query('SELECT * FROM items WHERE id = ?', [id], (error, updatedItem) => {
-        if (error) {
-          console.error('Ошибка при получении обновленного объекта: ' + error.message);
-          res.send(null);
-          return;
-        }
-        res.json(updatedItem[0]);
-      });
+      const randomItem = results[0];
+      res.send(`(${randomItem.id}) - ${randomItem.name}: ${randomItem.description}`);
     }
   });
 });
 
-app.get('/getAllItems', (req, res) => {
-  connection.query('SELECT * FROM items', (error, results) => {
-    if (error) {
-      console.error('Ошибка при получении всех элементов: ' + error.message);
-      res.status(500).send('Internal Server Error');
-      return;
-    }
-    res.json(results);
-  });
-});
-
-app.post('/addItem', (req, res) => {
-  const { name, desc } = req.body;
-  if (!name || !desc) {
-    res.status(400).send('Bad Request');
-    return;
-  }
-  connection.query('INSERT INTO items (name, description) VALUES (?, ?)', [name, desc], (error, results) => {
-    if (error) {
-      console.error('Ошибка при добавлении элемента: ' + error.message);
-      res.status(500).send('Internal Server Error');
-      return;
-    }
-    const newItemId = results.insertId;
-    connection.query('SELECT * FROM items WHERE id = ?', [newItemId], (error, newItem) => {
-      if (error) {
-        console.error('Ошибка при получении нового элемента: ' + error.message);
-        res.status(500).send('Internal Server Error');
-        return;
-      }
-      res.json(newItem[0]);
-    });
-  });
-});
-
-app.post('/deleteItem', (req, res) => {
+app.post('/deleteItemByID', (req, res) => {
   const { id } = req.body;
   if (!id) {
     res.status(400).send('Bad Request');
@@ -97,9 +51,30 @@ app.post('/deleteItem', (req, res) => {
       return;
     }
     if (results.affectedRows === 0) {
-      res.json({});
+      res.send('Ошибка: Элемент с указанным ID не найден');
     } else {
-      res.json({ id });
+      res.send('Успешно удалено');
+    }
+  });
+});
+
+app.post('/getItemByID', (req, res) => {
+  const { id } = req.body;
+  if (!id) {
+    res.status(400).send('Bad Request');
+    return;
+  }
+  connection.query('SELECT * FROM items WHERE id = ?', [id], (error, results) => {
+    if (error) {
+      console.error('Ошибка при получении элемента по ID: ' + error.message);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+    if (results.length === 0) {
+      res.send('Элемент с указанным ID не найден');
+    } else {
+      const item = results[0];
+      res.send(`(${item.id}) - ${item.name}: ${item.description}`);
     }
   });
 });
